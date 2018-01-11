@@ -1,0 +1,24 @@
+{
+  "name": "web-scrapper",
+  "version": "0.0.1",
+  "description": "Application to scrape web pages.",
+  "main": "server.js",
+  "author": "Aleksander Stefanski",
+  "dependencies": {
+    "express": "latest",
+    "request": "latest",
+    "cheerio": "latest",
+    "body-parser": "latest",
+    "fs": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest"
+  },
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "files": [
+    "./**/*"
+  ]
+}
