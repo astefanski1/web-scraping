@@ -3,18 +3,40 @@ const bodyParser = require('body-parser');
 const app = express();
 
 let fs = require('fs');
+let path = require('path');
 let request = require('request');
 let cheerio = require('cheerio');
 
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(express.static(__dirname + '/public'));
+app.use(express.static(path.join(__dirname, '/')));
 
 app.listen(4200, () => {
     console.log('Application is listening on port: 4200');
 });
 
 app.get('/', function (req, res) {
+
     res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/getCategories', function (req, res) {
+    let url = 'https://pl.wikipedia.org/wiki/Portal:Kategorie_G%C5%82%C3%B3wne';
+    request(url, (err, response, body) => {
+        let category_links = [];
+        let isCategory = true;
+        let $ = cheerio.load(body);
+        $('td p a', 'div#bodyContent').each(function () {
+            if ($(this).text() === 'Jak działają kategorie na Wikipedii?') isCategory = false;
+            if (isCategory) {
+                category_links.push({
+                    value: 'https://pl.wikipedia.org/wiki/Kategoria:' + $(this).text(),
+                    text: $(this).text()
+                });
+            }
+        });
+        res.send(category_links);
+    });
+
 });
 
 app.post('/download', (req, res) => {
@@ -26,14 +48,13 @@ function getFormData(data) {
     console.log("Form data passed by user: ");
     console.log(data);
     let site = data.site;
-    let type = 'Metodologia_nauki';
+    let type = data.type;
     let maxLength = data.maxLength;
     let articlesNumber = data.articlesNumber;
 
     switch (site) {
         case 'wikipedia':
-            let url = 'https://pl.wikipedia.org/wiki/Kategoria:' + type;
-            getWebPageDataWikipedia(url, maxLength, articlesNumber, site);
+            getWebPageDataWikipedia(type, maxLength, articlesNumber, site);
     }
 }
 
